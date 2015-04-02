@@ -1,22 +1,56 @@
 [
-{
+  {
     "id": "username",
     "type": "text",
     "label": "Username",
     "default": ""
-},
-{
+  },
+  {
     "id": "password",
     "type": "text",
     "label": "Password",
     "default": "",
     "option": "hidden"
-},
-{
+  },
+  {
     "id": "quality",
     "type": "enum",
     "label": "Quality",
-    "values": ["Auto", "Low", "Medium", "High"],
+    "values": [
+      "Auto",
+      "3g",
+      "480p",
+      "720p"
+    ],
     "default": "Auto"
-}
+  },
+  {
+    "id": "isp",
+    "type": "enum",
+    "label": "ISP",
+    "values": [
+      "Auto",
+      "tot",
+      "cat",
+      "true"
+    ],
+    "default": "Auto"
+  },
+  {
+    "id": "server",
+    "type": "enum",
+    "label": "Server",
+    "values": [
+      "auto",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "default": "auto"
+  }
 ]

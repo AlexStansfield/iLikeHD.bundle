@@ -6,15 +6,23 @@ API_URL_CHANNELS = "http://appservices.ilikehd.com:8080/app/3.5/livetv/xml/chann
 CIPHER_SECRET = "5up3rdup3rs3cr3t"
 CIPHER_IV = "fhjkyw9876543210"
 
-CATEGORIES = {"10": "HD",
-              "1": "Children",
-              "2": "Documentary",
-              "3": "Entertainment",
-              "4": "International",
-              "5": "Lifestyle",
-              "6": "Music",
-              "7": "News",
-              "8": "Sport",
-              "13": "English Sport",
-              "9": "Variety",
-              "16": "Digital"}
+CATEGORIES_ALL = [
+    {"id": "10", "title": "HD"},
+    {"id": "1", "title": "Children"},
+    {"id": "2", "title": "Documentary"},
+    {"id": "3", "title": "Entertainment"},
+    {"id": "4", "title": "International"},
+    {"id": "5", "title": "Lifestyle"},
+    {"id": "6", "title": "Music"},
+    {"id": "7", "title": "News"},
+    {"id": "8", "title": "Sport"},
+    {"id": "13", "title": "English Sport"},
+    {"id": "9", "title": "Variety"},
+    {"id": "16", "title": "Digital"}
+]
+
+CATEGORIES_MAIN = [
+    {"id": "my", "title": "Favourites"},
+    {"id": "pop", "title": "Popular"},
+    {"id": "all", "title": "All Channels"}
+]

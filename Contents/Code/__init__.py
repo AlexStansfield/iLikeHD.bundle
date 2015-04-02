@@ -8,8 +8,6 @@ NAME = "iLikeHD"
 ICON = R('icon-default.png')
 
 API = ilikehdapi.Api(config)
-API_USER = Prefs['username']
-API_PASS = Prefs['password']
 
 ####################################################################################################
 
@@ -25,30 +23,35 @@ def Start():
 @handler(PREFIX, NAME, thumb=ICON)
 def MainMenu():
     oc = ObjectContainer()
+
+    # Add Categories option
     oc.add(DirectoryObject(key=Callback(CategoriesMenu), title="Categories"))
-    oc.add(DirectoryObject(key=Callback(CategoryMenu, category="my", title="Favourites"), title="Favourites"))
-    oc.add(DirectoryObject(key=Callback(CategoryMenu, category="pop", title="Popular"), title="Popular"))
-    oc.add(DirectoryObject(key=Callback(CategoryMenu, category="all", title="All"), title="All Channels"))
+    # Add Main Menu Categories
+    for category in config.CATEGORIES_MAIN:
+        oc.add(DirectoryObject(key=Callback(CategoryMenu, category=category), title=category['title']))
+    # Add Preferences
     oc.add(PrefsObject(title=L('Preferences')))
+
     return oc
+
 
 @route(PREFIX + '/categoriesmenu')
 def CategoriesMenu():
     oc = ObjectContainer(title1="Categories")
-    for category_id, category_name in config.CATEGORIES.items():
-        oc.add(
-            DirectoryObject(key=Callback(CategoryMenu, category=category_id, title='Categories', title2=category_name),
-                            title=category_name))
+    for category in config.CATEGORIES_ALL:
+        oc.add(DirectoryObject(key=Callback(CategoryMenu, category=category), title=category['title']))
     return oc
 
-@route(PREFIX + '/categorymenu')
-def CategoryMenu(category, title, title2=None):
-    API.login(API_USER, API_PASS)
-    channels = API.getChannels(category)
-    oc = ObjectContainer(title1=title, title2=title2)
+
+@route(PREFIX + '/categorymenu', category=dict)
+def CategoryMenu(category):
+    API.login(Prefs['username'], Prefs['password'])
+    channels = API.getChannels(category["id"], Prefs['quality'], Prefs['server'])
+    oc = ObjectContainer(title1=category["title"])
     for channel in channels:
         oc.add(CreateVideoClipObject(url=channel['hls_url'], title=channel['name'], thumb=channel['thumb']))
     return oc
+
 
 @route(PREFIX + '/createvideoclipobject')
 def CreateVideoClipObject(url, title, thumb, container=False):
@@ -60,7 +63,6 @@ def CreateVideoClipObject(url, title, thumb, container=False):
         thumb=thumb,
         items=[
             MediaObject(
-                #aspect_ratio = "1.78",
                 #container = Container.MP4,     # MP4, MKV, MOV, AVI
                 #video_codec = VideoCodec.H264, # H264
                 #audio_codec = AudioCodec.AAC,  # ACC, MP3
@@ -70,8 +72,7 @@ def CreateVideoClipObject(url, title, thumb, container=False):
                         key=HTTPLiveStreamURL(url=url)
                     )
                 ],
-                video_resolution='720',
-                optimized_for_streaming=True
+                #optimized_for_streaming=True
             )
         ]
     )

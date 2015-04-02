@@ -10,17 +10,20 @@ class Api(object):
         self.config = config
 
     def login(self, username, password):
-        login_params = {'secret_key': self.config.API_KEY,
-                        'output': 'xml', 'e': base64.b64encode(username),
-                        'p': base64.b64encode(password)}
+        login_params = {
+            'secret_key': self.config.API_KEY,
+            'output': 'xml',
+            'e': base64.b64encode(username),
+            'p': base64.b64encode(password)
+        }
         login_url = self.config.API_URL_LOGIN + '?' + str(urllib.urlencode(login_params))
         login_xml = XML.ElementFromURL(login_url, headers={'User-Agent': self.config.API_USER_AGENT})
         self.user_id = login_xml.find("customers_id").text
         self.session_key = login_xml.find("session_key").text
         return self.user_id
 
-    def getChannels(self, category):
-        channels_params = {'uid': self.user_id, 'session_key': self.session_key, 'quality': 'Auto', 'server': 'auto',
+    def getChannels(self, category, quality, server):
+        channels_params = {'uid': self.user_id, 'session_key': self.session_key, 'quality': quality, 'server': server,
                            'crypt': 'true', 'cat': category}
         channels_url = self.config.API_URL_CHANNELS + '?' + str(urllib.urlencode(channels_params))
         channels_xml = XML.ElementFromURL(channels_url, headers={'User-Agent': self.config.API_USER_AGENT})
