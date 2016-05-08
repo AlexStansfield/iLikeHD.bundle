@@ -1,5 +1,9 @@
 import config
 import ilikehdapi
+import ast
+import json
+import types
+import urllib
 
 ####################################################################################################
 
@@ -46,21 +50,33 @@ def CategoriesMenu():
 @route(PREFIX + '/categorymenu', category=dict)
 def CategoryMenu(category):
     API.login(Prefs['username'], Prefs['password'])
-    channels = API.getChannels(category["id"], Prefs['quality'], Prefs['server'])
+    channels = API.getChannels(category["id"])
     oc = ObjectContainer(title1=category["title"])
     for channel in channels:
-        oc.add(CreateVideoClipObject(url=channel['hls_url'], title=channel['name'], thumb=channel['thumb']))
+        oc.add(CreateChannelObject(channel=channel))
     return oc
 
 
-@route(PREFIX + '/createvideoclipobject')
-def CreateVideoClipObject(url, title, thumb, container=False):
+@route(PREFIX + '/createchannelobject')
+def CreateChannelObject(channel, container=False):
+    if (type(channel) != types.DictionaryType):
+        Log.Debug(channel)
+        Log.Debug(urllib.unquote_plus(channel))
+        channel = ast.literal_eval(urllib.unquote_plus(channel))
+
+    if 'now_showing' in channel:
+        title = channel['name'] + ' - ' + channel['now_showing']['name']
+        summary = channel['now_showing']['description']
+    else:
+        title = channel['name']
+        summary = 'Description not available'
+
     vco = VideoClipObject(
-        key=Callback(CreateVideoClipObject, url=url, title=title, thumb=thumb, container=True),
-        # rating_key = url,
-        url=url,
+        key=Callback(CreateChannelObject, channel=channel, container=True),
+        rating_key=channel['code'],
         title=title,
-        thumb=thumb,
+        thumb=channel['thumb'],
+        summary=summary,
         items=[
             MediaObject(
                 #container = Container.MP4,     # MP4, MKV, MOV, AVI
@@ -69,7 +85,7 @@ def CreateVideoClipObject(url, title, thumb, container=False):
                 #audio_channels = 2,            # 2, 6
                 parts=[
                     PartObject(
-                        key=HTTPLiveStreamURL(url=url)
+                        key=HTTPLiveStreamURL(url=Callback(PlayVideo, channel=channel['code'], stuff="junk"))
                     )
                 ],
                 #optimized_for_streaming=True
@@ -81,3 +97,8 @@ def CreateVideoClipObject(url, title, thumb, container=False):
         return ObjectContainer(objects=[vco])
     else:
         return vco
+
+@route(PREFIX + "/play/{channel}/{stuff}")
+def PlayVideo(channel, stuff):
+    url = API.getStream(channel)
+    return Redirect(url)
